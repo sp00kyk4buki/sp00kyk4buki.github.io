@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Whizord's Wonderful Wardrobe</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            color: rgb(252, 250, 252);
+            text-align: center;
+            background-image: url('https://i.imgur.com/y8ScYDI.png'); /* Replace with your image path */
+            background-size: cover;                  /* Makes the image cover the whole background */
+            background-repeat: no-repeat;            /* Prevents tiling */
+            background-position: center center;      /* Centers the image */
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        button {
+            font-size: 1.1em;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #da86e6;
+            color: rgb(14, 12, 12);
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #15d0ff;
+        }
+        .hidden {
+            display: none;
+        }
+        input[type="text"] {
+            padding: 8px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            width: 200px;
+        }
+        #backToMain {
+            background-color: 000000;
+            color: rgb(3, 3, 3);
+        }
+        #backToMain:hover {
+            background-color: 000000;
+        }
+        #backToMainArmor {
+            background-color: #15d0ff;
+            color: rgb(7, 9, 10);
+        }
+        #backToMainArmor:hover {
+            background-color: 000000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome to Whizord's Wonderful Wardrobe!</h1>
+    <p>Which type of gear would you like to preview?</p>
+
+    <!-- First menu -->
+    <div id="gearTypeMenu">
+        <button id="weaponsBtn">Weapons</button>
+        <button id="armorBtn">Armor</button>
+    </div>
+
+    <!-- Weapons submenu -->
+    <div id="weaponsMenu" class="hidden">
+        <p>Select a weapon style:</p>
+        <input type="text" id="weaponSearch" placeholder="Search weapons...">
+        <div id="weaponList"></div>
+        <button id="backToMain">Back</button>
+    </div>
+
+    <!-- Armor submenu -->
+    <div id="armorsMenu" class="hidden">
+        <p>Select an armor style:</p>
+        <input type="text" id="armorSearch" placeholder="Search armors...">
+        <div id="armorList"></div>
+        <button id="backToMainArmor">Back</button>
+    </div>
+
+    <!-- Weapon Type menu -->
+    <div id="weaponTypeMenu" class="hidden">
+        <p>Choose your weapon type:</p>
+        <div id="weaponTypeButtons"></div>
+        <button id="backToWeapons">Back</button>
+    </div>
+
+    <!-- Weapon Image menu -->
+    <div id="weaponImageMenu" class="hidden">
+        <p id="finalSelection"></p>
+        <img id="finalImage" src="" alt="Selected Weapon" style="max-width:300px;">
+        <button id="backToType">Back</button>
+    </div>
+
+    <!-- Armor Type menu -->
+    <div id="armorTypeMenu" class="hidden">
+        <p>Choose your armor piece:</p>
+        <div id="armorTypeButtons"></div>
+        <button id="backToArmors">Back</button>
+    </div>
+
+    <!-- Armor Image menu -->
+    <div id="armorImageMenu" class="hidden">
+        <p id="finalArmorSelection"></p>
+        <img id="finalArmorImage" src="" alt="Selected Armor" style="max-width:300px;">
+        <button id="backToArmorType">Back</button>
+    </div>
+
+    <script>
+        const gearTypeMenu = document.getElementById('gearTypeMenu');
+        const weaponsMenu = document.getElementById('weaponsMenu');
+        const weaponListDiv = document.getElementById('weaponList');
+        const armorsMenu = document.getElementById('armorsMenu');
+        const armorListDiv = document.getElementById('armorList');
+
+        // The weapon names array
+        const weapons = [
+          "Abah's Watch", "Akaviri", "Aldmeri Dominion", "Ancestral Akaviri",
+          "Ancestral Breton", "Ancestral Nord", "Ancestral Orc", "Ancestral Reach",
+          "Ancient Daedric", "Ancient Elf", "Ancient Orc", "Anequina",
+          "Apocryphal", "Apostle", "Arkthzand Armory", "Assassin's League",
+          "Ashlander", "Barbaric", "Black Fin Legion", "Blackreach Vanguard",
+          "Blessed Inheritor", "Bloodforge", "Blind Path Cultist", "Breton",
+          "Buoyant Armiger", "Celestial", "Clan Dreamcarver", "Coldsnap",
+          "Crimson Oath", "Daedric", "Daggerfall Covenant", "Dark Brotherhood",
+          "Dark Elf", "Dead Keeper", "Dead-Water", "Draugr",
+          "Dragonguard", "Dreadhorn", "Dreadsails", "Dremora",
+          "Dro-M'Athra", "Drowned Mariner", "Dwemer", "Ebonheart Pact",
+          "Ebony", "Ebonshadow", "Elder Argonian", "Exile's Revenge",
+          "Fargrave Guardian", "Fang Lair", "Firesong", "Glass",
+          "Greymoor", "Hazardous Alchemy", "High Elf", "Hircine Bloodhunter",
+          "Hlaalu", "Hollowjack", "Honor Guard", "House Hexos",
+          "House Mornard", "Huntsman", "Icereach Coven", "Imperial",
+          "Ivory Brigade", "Khajiit", "Kindred's Concord", "Lucent Sentinel",
+          "Malacath", "Mazzatun", "Mercenary", "Meridian",
+          "Militant Monk", "Militant Ordinator", "Minotaur", "Moongrave Fane",
+          "New Moon Priest", "Nighthollow", "Nord", "Order of the Hour",
+          "Orc", "Outlaw", "Pellitine", "Primal",
+          "Psijic Order", "Pyandonean", "Pyre Watch", "Ra Gada",
+          "Redguard", "Redoran", "Refabricated", "Sapiarch",
+          "Scalecaller", "Scribes of Mora", "Sea Giant", "Shield of Senchal",
+          "Shardborn", "Silver Dawn", "Silver Rose", "Skinchanger",
+          "Silken Ring", "Soul Shriven", "Stags of Z'en", "Steadfast Society",
+          "Sul-Xan", "Sunspire", "Syrabanic Marine", "Systres Guardian",
+          "Telvanni", "Thieves Guild", "Thorn Legion", "Tide-Born",
+          "Trinimac", "True-Sworn", "Waking Flame", "Wayward Guardian",
+          "West Weald Legion", "Worm Cult", "Welkynar", "Wood Elf",
+          "Xivkyn", "Y'ffre's Will", "Yokudan"
+        ];
+
+        // The armor names array
+        const armors = [
+          "Abah's Watch", "Akaviri", "Aldmeri Dominion", "Ancestral Akaviri",
+          "Ancestral Breton", "Ancestral Nord", "Ancestral Orc", "Ancestral Reach",
+          "Ancient Daedric", "Ancient Elf", "Ancient Orc", "Anequina",
+          "Apocryphal", "Apostle", "Arkthzand Armory", "Assassin's League",
+          "Ashlander", "Barbaric", "Black Fin Legion", "Blackreach Vanguard",
+          "Blessed Inheritor", "Bloodforge", "Blind Path Cultist", "Breton",
+          "Buoyant Armiger", "Celestial", "Clan Dreamcarver", "Coldsnap",
+          "Crimson Oath", "Daedric", "Daggerfall Covenant", "Dark Brotherhood",
+          "Dark Elf", "Dead Keeper", "Dead-Water", "Draugr",
+          "Dragonguard", "Dreadhorn", "Dreadsails", "Dremora",
+          "Dro-M'Athra", "Drowned Mariner", "Dwemer", "Ebonheart Pact",
+          "Ebony", "Ebonshadow", "Elder Argonian", "Exile's Revenge",
+          "Fargrave Guardian", "Fang Lair", "Firesong", "Glass",
+          "Greymoor", "Hazardous Alchemy", "High Elf", "Hircine Bloodhunter",
+          "Hlaalu", "Hollowjack", "Honor Guard", "House Hexos",
+          "House Mornard", "Huntsman", "Icereach Coven", "Imperial",
+          "Ivory Brigade", "Khajiit", "Kindred's Concord", "Lucent Sentinel",
+          "Malacath", "Mazzatun", "Mercenary", "Meridian",
+          "Militant Monk", "Militant Ordinator", "Minotaur", "Moongrave Fane",
+          "New Moon Priest", "Nighthollow", "Nord", "Order of the Hour",
+          "Orc", "Outlaw", "Pellitine", "Primal",
+          "Psijic Order", "Pyandonean", "Pyre Watch", "Ra Gada",
+          "Redguard", "Redoran", "Refabricated", "Sapiarch",
+          "Scalecaller", "Scribes of Mora", "Sea Giant", "Shield of Senchal",
+          "Shardborn", "Silver Dawn", "Silver Rose", "Skinchanger",
+          "Silken Ring", "Soul Shriven", "Stags of Z'en", "Steadfast Society",
+          "Sul-Xan", "Sunspire", "Syrabanic Marine", "Systres Guardian",
+          "Telvanni", "Thieves Guild", "Thorn Legion", "Tide-Born",
+          "Trinimac", "True-Sworn", "Waking Flame", "Wayward Guardian",
+          "West Weald Legion", "Worm Cult", "Welkynar", "Wood Elf",
+          "Xivkyn", "Y'ffre's Will", "Yokudan"
+        ];
+
+        // Build the weapon buttons dynamically
+function buildWeaponButtons() {
+  weaponListDiv.innerHTML = '';
+  weapons.forEach(name => {
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    weaponListDiv.appendChild(btn);
+  });
+}
+
+buildWeaponButtons();
+
+document.getElementById('weaponsBtn').addEventListener('click', function() {
+  gearTypeMenu.classList.add('hidden');
+  weaponsMenu.classList.remove('hidden');
+});
+
+document.getElementById('armorBtn').addEventListener('click', function() {
+  gearTypeMenu.classList.add('hidden');
+  armorsMenu.classList.remove('hidden');
+  buildArmorButtons();
+});
+
+document.getElementById('backToMain').addEventListener('click', function() {
+  weaponsMenu.classList.add('hidden');
+  gearTypeMenu.classList.remove('hidden');
+  document.getElementById('weaponSearch').value = '';
+  buildWeaponButtons();
+});
+
+document.getElementById('backToMainArmor').addEventListener('click', function() {
+  armorsMenu.classList.add('hidden');
+  gearTypeMenu.classList.remove('hidden');
+  document.getElementById('armorSearch').value = '';
+  buildArmorButtons();
+});
+
+document.getElementById('weaponSearch').addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  const buttons = weaponListDiv.querySelectorAll('button');
+  buttons.forEach(btn => {
+    btn.style.display = btn.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
+
+// Build the armor buttons dynamically
+function buildArmorButtons() {
+  armorListDiv.innerHTML = '';
+  armors.forEach(name => {
+    const btn = document.createElement('button');
+    btn.textContent = name;
+    armorListDiv.appendChild(btn);
+  });
+}
+
+buildArmorButtons();
+
+document.getElementById('armorSearch').addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  const buttons = armorListDiv.querySelectorAll('button');
+  buttons.forEach(btn => {
+    btn.style.display = btn.textContent.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
+
+const weaponTypes = [
+  "Axe", "Mace", "Sword", "Battle Axe", "Maul", "Greatsword", "Dagger"
+];
+
+const weaponTypeMenu = document.getElementById('weaponTypeMenu');
+const weaponTypeButtonsDiv = document.getElementById('weaponTypeButtons');
+const weaponImageMenu = document.getElementById('weaponImageMenu');
+const finalSelection = document.getElementById('finalSelection');
+const finalImage = document.getElementById('finalImage');
+
+let selectedWeaponStyle = null;
+
+// When a weapon style button is clicked
+weaponListDiv.addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    selectedWeaponStyle = e.target.textContent;
+    weaponsMenu.classList.add('hidden');
+    weaponTypeMenu.classList.remove('hidden');
+    buildWeaponTypeButtons();
+  }
+});
+
+function buildWeaponTypeButtons() {
+  weaponTypeButtonsDiv.innerHTML = '';
+  weaponTypes.forEach(type => {
+    const btn = document.createElement('button');
+    btn.textContent = type;
+    weaponTypeButtonsDiv.appendChild(btn);
+  });
+}
+
+// When a weapon type is chosen
+weaponTypeButtonsDiv.addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    const selectedType = e.target.textContent;
+    weaponTypeMenu.classList.add('hidden');
+    weaponImageMenu.classList.remove('hidden');
+    showFinalImage(selectedWeaponStyle, selectedType);
+  }
+});
+
+// Show the final image and selection
+function showFinalImage(style, type) {
+  finalSelection.textContent = `You chose: ${style} - ${type}`;
+  // Example image URL logic (customize as needed)
+  // You can build your image URL based on style and type
+  // For demonstration, we'll use a placeholder image
+  finalImage.src = `https://via.placeholder.com/300x200?text=${encodeURIComponent(style + ' ' + type)}`;
+}
+
+// Back buttons
+document.getElementById('backToWeapons').addEventListener('click', function() {
+  weaponTypeMenu.classList.add('hidden');
+  weaponsMenu.classList.remove('hidden');
+});
+
+document.getElementById('backToType').addEventListener('click', function() {
+  weaponImageMenu.classList.add('hidden');
+  weaponTypeMenu.classList.remove('hidden');
+});
+
+const armorTypes = [
+  "Head", "Chest", "Shoulders", "Hands", "Waist", "Legs", "Shoes"
+];
+
+const armorTypeMenu = document.getElementById('armorTypeMenu');
+const armorTypeButtonsDiv = document.getElementById('armorTypeButtons');
+const armorImageMenu = document.getElementById('armorImageMenu');
+const finalArmorSelection = document.getElementById('finalArmorSelection');
+const finalArmorImage = document.getElementById('finalArmorImage');
+
+let selectedArmorStyle = null;
+
+// When an armor style button is clicked
+armorListDiv.addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    selectedArmorStyle = e.target.textContent;
+    armorsMenu.classList.add('hidden');
+    armorTypeMenu.classList.remove('hidden');
+    buildArmorTypeButtons();
+  }
+});
+
+function buildArmorTypeButtons() {
+  armorTypeButtonsDiv.innerHTML = '';
+  armorTypes.forEach(type => {
+    const btn = document.createElement('button');
+    btn.textContent = type;
+    armorTypeButtonsDiv.appendChild(btn);
+  });
+}
+
+// When an armor type is chosen
+armorTypeButtonsDiv.addEventListener('click', function(e) {
+  if (e.target.tagName === 'BUTTON') {
+    const selectedType = e.target.textContent;
+    armorTypeMenu.classList.add('hidden');
+    armorImageMenu.classList.remove('hidden');
+    showFinalArmorImage(selectedArmorStyle, selectedType);
+  }
+});
+
+// Show the final armor image and selection
+function showFinalArmorImage(style, type) {
+  finalArmorSelection.textContent = `You chose: ${style} - ${type}`;
+  // Example image URL logic (customize as needed)
+  finalArmorImage.src = `https://via.placeholder.com/300x200?text=${encodeURIComponent(style + ' ' + type)}`;
+}
+
+// Back buttons for armor section
+document.getElementById('backToArmors').addEventListener('click', function() {
+  armorTypeMenu.classList.add('hidden');
+  armorsMenu.classList.remove('hidden');
+});
+
+document.getElementById('backToArmorType').addEventListener('click', function() {
+  armorImageMenu.classList.add('hidden');
+  armorTypeMenu.classList.remove('hidden');
+});
+    </script>
+</body>
+</html>
